@@ -30,6 +30,7 @@ dependencies:
 - text
 - mtl
 - vector
+- array
 
 library:
   source-dirs: src

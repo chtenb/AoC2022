@@ -12,7 +12,7 @@ import qualified Data.Vector as Vec
 import qualified Util.Util as U
 
 import qualified Program.RunDay as R (runDay, Day)
-import Data.Attoparsec.Text
+import Data.Attoparsec.Text ( Parser, sepBy, decimal, string )
 import Data.Void
 {- ORMOLU_ENABLE -}
 
@@ -21,19 +21,19 @@ runDay = R.runDay inputParser partA partB
 
 ------------ PARSER ------------
 inputParser :: Parser Input
-inputParser = error "Not implemented yet!"
+inputParser = sepBy (sepBy decimal (string "\n")) (string "\n\n")
 
 ------------ TYPES ------------
-type Input = Void
+type Input = [[Int]]
 
-type OutputA = Void
+type OutputA = Int
 
-type OutputB = Void
+type OutputB = Int
 
 ------------ PART A ------------
 partA :: Input -> OutputA
-partA = error "Not implemented yet!"
+partA = maximum . map sum
 
 ------------ PART B ------------
 partB :: Input -> OutputB
-partB = error "Not implemented yet!"
+partB = sum . Data.List.take 3 . reverse . sort . map sum

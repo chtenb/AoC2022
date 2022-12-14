@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 74a518596623333f54debbd08849a3f5a987e3c7d13d8b337ef10b1fc25ba29c
+-- hash: 636a90a68edd70b496c73bc381d716da73e89494fe2c37b26f2f37a88fa690b5
 
 name:           aoc-template
 version:        2022.0
@@ -70,6 +70,7 @@ library
       GHC2021
   build-depends:
       ansi-terminal
+    , array
     , attoparsec
     , base >=4.7 && <5
     , containers
@@ -100,6 +101,7 @@ executable aoc-template-exe
   build-depends:
       ansi-terminal
     , aoc-template
+    , array
     , attoparsec
     , base >=4.7 && <5
     , containers

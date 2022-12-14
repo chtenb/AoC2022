@@ -21,19 +21,39 @@ runDay = R.runDay inputParser partA partB
 
 ------------ PARSER ------------
 inputParser :: Parser Input
-inputParser = error "Not implemented yet!"
+inputParser = parseRangePair `sepBy` "\n"
+
+parseRangePair = do
+  a <- decimal
+  _ <- char '-'
+  b <- decimal
+  _ <- char ','
+  c <- decimal
+  _ <- char '-'
+  d <- decimal
+  return ((a, b), (c, d))
 
 ------------ TYPES ------------
-type Input = Void
+type Input = [RangePair]
 
-type OutputA = Void
+type Range = (Int, Int)
 
-type OutputB = Void
+type RangePair = (Range, Range)
+
+type OutputA = Int
+
+type OutputB = Int
 
 ------------ PART A ------------
 partA :: Input -> OutputA
-partA = error "Not implemented yet!"
+partA = length . filter (uncurry reportRangePair)
+
+reportRangePair r1 r2 = rangeContainsRange r1 r2 || rangeContainsRange r2 r1
+
+rangeContainsRange (a, b) (c, d) = a <= c && b >= d
 
 ------------ PART B ------------
 partB :: Input -> OutputB
-partB = error "Not implemented yet!"
+partB = length . filter (uncurry rangesOverlap)
+
+rangesOverlap (a, b) (c, d) = (a <= c && c <= b) || (c <= a && a <= d)
