@@ -12,8 +12,9 @@ import qualified Data.Vector as Vec
 import qualified Util.Util as U
 
 import qualified Program.RunDay as R (runDay, Day)
-import Data.Attoparsec.Text
+import Data.Attoparsec.Text hiding (take)
 import Data.Void
+import Control.Monad.State (StateT (runStateT), MonadState (put, get), MonadTrans (lift), runState)
 {- ORMOLU_ENABLE -}
 
 runDay :: R.Day
@@ -21,19 +22,32 @@ runDay = R.runDay inputParser partA partB
 
 ------------ PARSER ------------
 inputParser :: Parser Input
-inputParser = error "Not implemented yet!"
+inputParser = fst <$> runStateT parseTillMarker []
+
+windowSize = 14
+
+parseTillMarker :: StateT [Char] Parser String
+parseTillMarker = many' $ do
+  currentWindow <- get
+  if length currentWindow == windowSize && nub currentWindow == currentWindow
+    then fail "Marker reached"
+    else do
+      nextChar <- lift anyChar
+      let newWindow = nextChar : take (windowSize - 1) currentWindow
+      put newWindow
+      return nextChar
 
 ------------ TYPES ------------
-type Input = Void
+type Input = String
 
-type OutputA = Void
+type OutputA = Int
 
-type OutputB = Void
+type OutputB = Int
 
 ------------ PART A ------------
 partA :: Input -> OutputA
-partA = error "Not implemented yet!"
+partA = length
 
 ------------ PART B ------------
 partB :: Input -> OutputB
-partB = error "Not implemented yet!"
+partB = length
