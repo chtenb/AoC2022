@@ -45,10 +45,10 @@ chunksByPredicate :: (a -> Bool) -> [a] -> [[a]]
 chunksByPredicate p ls
   | null ls = []
   | otherwise =
-    let (prefix, rest) = span p ls
-     in if null prefix
-          then (chunksByPredicate p $ dropWhile (not . p) rest)
-          else prefix : (chunksByPredicate p $ dropWhile (not . p) rest)
+      let (prefix, rest) = span p ls
+       in if null prefix
+            then (chunksByPredicate p $ dropWhile (not . p) rest)
+            else prefix : (chunksByPredicate p $ dropWhile (not . p) rest)
 
 -- Allows the user to log out some context and then the result of some expression
 -- For example, supposing a is 2, and b is 5:
@@ -73,3 +73,9 @@ mapBoundingBox m =
     (maximum . fmap fst . Map.keys $ m)
     (minimum . fmap snd . Map.keys $ m)
     (maximum . fmap snd . Map.keys $ m)
+
+-- Show strings without quotes and escaped stuff
+newtype DisplayString = DisplayString {unwrap :: String}
+
+instance Show DisplayString where
+  show = unwrap
