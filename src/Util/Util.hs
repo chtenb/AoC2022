@@ -3,12 +3,18 @@ module Util.Util where
 {- ORMOLU_DISABLE -}
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
-import Debug.Trace (trace)
+import Debug.Trace (trace, traceShow)
 {- ORMOLU_ENABLE -}
 
 {-
 This module contains a series of miscellaneous utility functions that I have found helpful in the past.
 -}
+
+spy :: Show b => b -> b
+spy x = traceShow x x
+
+spyMsg :: Show b => String -> b -> b
+spyMsg msg x = trace (msg ++ ": " ++ show x) x
 
 -- Takes a list.
 -- Returns a map from elements of that list to the number of times they appeared in the list.

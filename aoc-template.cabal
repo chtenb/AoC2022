@@ -3,8 +3,6 @@ cabal-version: 1.12
 -- This file has been generated from package.yaml by hpack version 0.35.0.
 --
 -- see: https://github.com/sol/hpack
---
--- hash: 636a90a68edd70b496c73bc381d716da73e89494fe2c37b26f2f37a88fa690b5
 
 name:           aoc-template
 version:        2022.0
@@ -53,6 +51,7 @@ library
       Days.Day25
       Program.Color
       Program.RunDay
+      Util.AStar
       Util.Pair
       Util.Parsers
       Util.Util
@@ -69,7 +68,8 @@ library
       GADTs
       GHC2021
   build-depends:
-      ansi-terminal
+      PSQueue
+    , ansi-terminal
     , array
     , attoparsec
     , base >=4.7 && <5
@@ -99,7 +99,8 @@ executable aoc-template-exe
       GHC2021
   ghc-options: -threaded -rtsopts -with-rtsopts=-N4 -with-rtsopts=-qa -with-rtsopts=-C0 -funfolding-use-threshold=16 -fexcess-precision -optc-O3 -optc-ffast-math -O2
   build-depends:
-      ansi-terminal
+      PSQueue
+    , ansi-terminal
     , aoc-template
     , array
     , attoparsec

@@ -34,11 +34,12 @@ packages:
 # These entries can reference officially published versions as well as
 # forks / in-progress versions pinned to a git hash. For example:
 #
-# extra-deps:
+extra-deps:
 # - acme-missiles-0.3
 # - git: https://github.com/commercialhaskell/stack.git
 #   commit: e7b331f14bcffb8367cd58fbfc8b40ec7642100a
 #
+- PSQueue-1.1.1@sha256:6a047401f39a437c6cf4f866fb9b8f4b53b465bc12ae78c91e5026a653794509,1500
 
 # Override default flag values for local packages and extra-deps
 # flags: {}

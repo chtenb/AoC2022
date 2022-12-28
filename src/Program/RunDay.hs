@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Program.RunDay (runDay, Day, Verbosity (Quiet, Timings, Verbose)) where
+module Program.RunDay (runDay, justParse, Day, Verbosity (Quiet, Timings, Verbose)) where
 
 import Control.Exception (SomeException, catch)
 import Control.Monad.Except
@@ -16,6 +16,14 @@ import Text.Printf
 data Verbosity = Quiet | Timings | Verbose deriving (Eq, Show, Ord)
 
 type Day = Verbosity -> String -> IO (Maybe Double, Maybe Double)
+
+-- Handy for REPL
+justParse :: Parser b -> FilePath -> IO b
+justParse inputParser inputFile = do
+  fileContents <- liftIO $ readFile inputFile
+  case parseOnly inputParser . pack $ fileContents of
+    Left e -> error $ "Parser failed to read input. Error:\n" ++ e
+    Right i -> return i
 
 runDay :: (Show a, Show b, Show i) => Parser i -> (i -> a) -> (i -> b) -> Program.RunDay.Day
 runDay inputParser partA partB verbosity inputFile = do
