@@ -6,6 +6,7 @@ import qualified Data.Map.Strict as Map
 import Debug.Trace (trace, traceShow)
 import Data.Array.MArray
 import Data.Array (Ix)
+import Data.List (sortBy, minimumBy, maximumBy)
 {- ORMOLU_ENABLE -}
 
 {-
@@ -94,3 +95,21 @@ newtype DisplayString = DisplayString {unwrap :: String}
 
 instance Show DisplayString where
   show = unwrap
+
+sortByKey :: (Ord k) => (a -> k) -> [a] -> [a]
+sortByKey f = sortBy compareByKey
+  where
+    compareByKey a b = compare (f a) (f b)
+
+minimumByKey :: (Ord k) => (a -> k) -> [a] -> a
+minimumByKey f = minimumBy compareByKey
+  where
+    compareByKey a b = compare (f a) (f b)
+
+maximumByKey :: (Ord k) => (a -> k) -> [a] -> a
+maximumByKey f = maximumBy compareByKey
+  where
+    compareByKey a b = compare (f a) (f b)
+
+flipPair :: (a, b) -> (b, a)
+flipPair (a, b) = (b, a)
