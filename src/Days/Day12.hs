@@ -76,7 +76,7 @@ partA input =
       !start = spyMsg "Start" $ head sortedCoords
       !end = spyMsg "End" $ last sortedCoords
       coordValidator (row, col) = (0 <= col && col < width && 0 <= row && row < height)
-      costMap = astar (successor grid coordValidator) (manhattanDistance end) start end
+      (_, costMap) = astar (successor grid coordValidator) (manhattanDistance end) (== end) start
       shader coord = chr (maybe 45 (\x -> (round x `mod` 57) + 65) (costMap Map.!? coord))
    in traceShow
         (displayGrid $ drawGrid shader width height)
@@ -113,5 +113,5 @@ partB input =
       end = head $ fst <$> filter (\(_, h) -> h == 27) (assocs grid)
       startingPoints = fst <$> filter (\(_, h) -> h == 1) (assocs grid)
       coordValidator (row, col) = (0 <= col && col < width && 0 <= row && row < height)
-      costMap start = astar (successor grid coordValidator) (manhattanDistance end) start end
+      costMap start = snd $ astar (successor grid coordValidator) (manhattanDistance end) (== end) start
    in sort $ (\start -> costMap start Map.!? end) `mapMaybe` startingPoints

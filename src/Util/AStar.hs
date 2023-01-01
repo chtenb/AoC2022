@@ -17,30 +17,36 @@ This module contains an implementation of the A* search algorithm
 
 type Path n = [n]
 
+-- Lower bound for the remaining cost to arrive at the destination from the given node
 type Heuristic n = n -> Double
 
 type Successor n = n -> [(n, Double)]
+
+type Terminator n = n -> Bool
 
 type Visited n = Map n Double
 
 -- Visited, but not expanded
 type Front n = PSQ n Double
 
-astar :: (Ord n) => Successor n -> Heuristic n -> n -> n -> Visited n
-astar successor heuristic start = astarRec successor heuristic (Map.singleton start 0, PSQ.singleton start 0)
+astar :: (Ord n) => Successor n -> Heuristic n -> Terminator n -> n -> (Maybe n, Visited n)
+astar successor heuristic terminator start = astarRec successor heuristic terminator (Map.singleton start 0, PSQ.singleton start 0)
 
-astarRec :: (Ord n) => Successor n -> Heuristic n -> (Visited n, Front n) -> n -> Visited n
-astarRec successor heuristic state@(visited, front) end =
-  let newState@(newVisited, newFront) =
-        case PSQ.minView front of
-          Nothing -> error "front was empty"
-          Just (parent :-> _, remainingFront) ->
-            let parentCost = visited ! parent
-             in List.foldl' (processChild heuristic end parentCost) (visited, remainingFront) (successor parent)
-   in if PSQ.null newFront then newVisited else astarRec successor heuristic newState end
+astarRec :: (Ord n) => Successor n -> Heuristic n -> Terminator n -> (Visited n, Front n) -> (Maybe n, Visited n)
+astarRec successor heuristic terminator state@(visited, front) =
+  case PSQ.minView front of
+    Nothing -> error "front was empty"
+    Just (parent :-> _, remainingFront) ->
+      if
+          | terminator parent -> (Just parent, visited)
+          | PSQ.null newFront -> (Nothing, newVisited)
+          | otherwise -> astarRec successor heuristic terminator newState
+      where
+        parentCost = visited ! parent
+        newState@(newVisited, newFront) = List.foldl' (processChild heuristic parentCost) (visited, remainingFront) (successor parent)
 
-processChild :: (Ord n) => Heuristic n -> n -> Double -> (Visited n, Front n) -> (n, Double) -> (Visited n, Front n)
-processChild heuristic end parentCost state@(visited, front) (child, stepCost) =
+processChild :: (Ord n) => Heuristic n -> Double -> (Visited n, Front n) -> (n, Double) -> (Visited n, Front n)
+processChild heuristic parentCost state@(visited, front) (child, stepCost) =
   let childCost = parentCost + stepCost
       childTotalCostEstimate = childCost + heuristic child
       updatedState =

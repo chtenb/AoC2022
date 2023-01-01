@@ -6,7 +6,7 @@ import qualified Data.Map.Strict as Map
 import Debug.Trace (trace, traceShow)
 import Data.Array.MArray
 import Data.Array (Ix)
-import Data.List (sortBy, minimumBy, maximumBy)
+import Data.List (sortBy, minimumBy, maximumBy, intercalate)
 {- ORMOLU_ENABLE -}
 
 {-
@@ -113,3 +113,6 @@ maximumByKey f = maximumBy compareByKey
 
 flipPair :: (a, b) -> (b, a)
 flipPair (a, b) = (b, a)
+
+printLines :: Show a => [a] -> DisplayString
+printLines = DisplayString . intercalate "\n" . map show
