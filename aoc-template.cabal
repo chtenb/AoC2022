@@ -81,6 +81,7 @@ library
     , random
     , text
     , time
+    , union-find
     , vector
   default-language: Haskell2010
 
@@ -114,5 +115,6 @@ executable aoc-template-exe
     , random
     , text
     , time
+    , union-find
     , vector
   default-language: Haskell2010
