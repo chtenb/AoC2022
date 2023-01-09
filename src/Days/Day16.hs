@@ -4,6 +4,9 @@ module Days.Day16 (runDay) where
 import Data.List
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
+import Data.HashMap.Strict (HashMap)
+import qualified Data.HashMap.Strict as HashMap
+import Data.Hashable (Hashable(..))
 import Data.Maybe
 import Data.Set (Set)
 import qualified Data.Set as Set
@@ -17,6 +20,8 @@ import Data.Void
 import Util.AStar (astar)
 import Util.Util
 import Debug.Trace (trace)
+import GHC.Generics (Generic)
+import Data.Monoid (Sum)
 {- ORMOLU_ENABLE -}
 
 runDay :: R.Day
@@ -62,7 +67,7 @@ partA system =
   let start = spy $ initialNode system
       minutes = 26
       (end, costMap) = astar (successor system) (heuristic minutes system (maximalRate system)) (terminator minutes) start
-   in (\x -> (x, costMap Map.! x)) <$> end
+   in (\x -> (x, costMap HashMap.! x)) <$> end
 
 maximalRate system = sum $ rate <$> Map.elems system
 
@@ -73,6 +78,14 @@ instance Eq Node where
 
 instance Ord Node where
   compare a b = compare (label a.position, label a.elephant, a.minute, a.openValves) (label b.position, label b.elephant, b.minute, b.openValves)
+
+instance Hashable Node where
+  hashWithSalt salt n =
+    salt
+      `hashWithSalt` label n.position
+      `hashWithSalt` label n.elephant
+      `hashWithSalt` n.minute
+      `hashWithSalt` n.openValves
 
 initialNode system = Node (system Map.! "AA") (system Map.! "AA") 1 Set.empty 0
 
@@ -87,8 +100,8 @@ combinePartialSuccessions parent (succession, elephantSuccession) =
     (parent.totalRate + succession.rateDelta + elephantSuccession.rateDelta)
 
 -- The cost is always negative, but that is not a problem since there are no loops in the graph
-successor :: ValveSystem -> Node -> [(Node, Double)]
-successor system parent = (,stepCost) . combinePartialSuccessions parent <$> ([(s1, s2) | s1 <- listSuccessionsForValve parent.position, s2 <- listSuccessionsForValve parent.elephant])
+successor :: ValveSystem -> (Node, Sum Double) -> [(Node, Sum Double)]
+successor system (parent, parentCost) = (,parentCost + stepCost) . combinePartialSuccessions parent <$> ([(s1, s2) | s1 <- listSuccessionsForValve parent.position, s2 <- listSuccessionsForValve parent.elephant])
   where
     -- A valve opened at a certain minute will only relieve cost in the next minute
     stepCost = -fromIntegral parent.totalRate
@@ -111,9 +124,9 @@ terminator :: Int -> Node -> Bool
 terminator totalMinutes node = node.minute == totalMinutes + 1
 
 -- The best you can do is open all remaining valves in order of decreasing flow rate in the minutes left
-heuristic :: Int -> ValveSystem -> Int -> Node -> Double
+heuristic :: Int -> ValveSystem -> Int -> Node -> Sum Double
 heuristic totalMinutes system maximalRate node =
-  -- TODO actually implement the above
+  -- TODO actually implement the above, because now we do essentially just dijkstra
   let remainingMinutes = totalMinutes - node.minute
    in -fromIntegral (maximalRate * remainingMinutes)
 

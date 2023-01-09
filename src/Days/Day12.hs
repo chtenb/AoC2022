@@ -6,6 +6,8 @@ module Days.Day12 (runDay) where
 import Data.List
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
+import Data.HashMap.Strict (HashMap)
+import qualified Data.HashMap.Strict as HashMap
 import Data.Maybe
 import Data.Set (Set)
 import qualified Data.Set as Set
@@ -25,6 +27,7 @@ import Util.AStar
 import Control.Monad (when)
 import GHC.Char (chr)
 import Debug.Trace (trace, traceShow)
+import Data.Monoid (Sum(..))
 {- ORMOLU_ENABLE -}
 
 runDay :: R.Day
@@ -65,7 +68,7 @@ type Grid = Array Coord Height
 
 type OutputA = DisplayString
 
-type OutputB = [Double]
+type OutputB = [Sum Double]
 
 ------------ PART A ------------
 partA :: Input -> OutputA
@@ -77,26 +80,26 @@ partA input =
       !end = spyMsg "End" $ last sortedCoords
       coordValidator (row, col) = (0 <= col && col < width && 0 <= row && row < height)
       (_, costMap) = astar (successor grid coordValidator) (manhattanDistance end) (== end) start
-      shader coord = chr (maybe 45 (\x -> (round x `mod` 57) + 65) (costMap Map.!? coord))
+      shader coord = chr (maybe 45 (\x -> (round x.getSum `mod` 57) + 65) (costMap HashMap.!? coord))
    in traceShow
         (displayGrid $ drawGrid shader width height)
-        ( case costMap Map.!? end of
+        ( case costMap HashMap.!? end of
             Nothing -> DisplayString "End was not found in the cost map"
             Just endCost -> DisplayString $ show endCost
         )
 
-manhattanDistance :: (Int, Int) -> (Int, Int) -> Double
+manhattanDistance :: (Int, Int) -> (Int, Int) -> Sum Double
 manhattanDistance (a, b) (c, d) = abs (fromIntegral a - fromIntegral c) + abs (fromIntegral b - fromIntegral d)
 
-successor :: Grid -> (Coord -> Bool) -> Coord -> [(Coord, Double)]
-successor heightMap isValid n@(row, col) =
+successor :: Grid -> (Coord -> Bool) -> (Coord, Sum Double) -> [(Coord, Sum Double)]
+successor heightMap isValid (n@(row, col), parentCost) =
   let left = (row, col - 1)
       up = (row - 1, col)
       down = (row + 1, col)
       right = (row, col + 1)
       currentHeight = heightMap ! n
       isReachable coord = ((heightMap ! coord) - currentHeight) <= 1
-      withCosts c = (c, 1) :: (Coord, Double)
+      withCosts c = (c, parentCost + 1) :: (Coord, Sum Double)
    in withCosts <$> filter isReachable (filter isValid [left, up, down, right])
 
 drawGrid :: (Coord -> Char) -> Int -> Int -> [String]
@@ -114,4 +117,4 @@ partB input =
       startingPoints = fst <$> filter (\(_, h) -> h == 1) (assocs grid)
       coordValidator (row, col) = (0 <= col && col < width && 0 <= row && row < height)
       costMap start = snd $ astar (successor grid coordValidator) (manhattanDistance end) (== end) start
-   in sort $ (\start -> costMap start Map.!? end) `mapMaybe` startingPoints
+   in sort $ (\start -> costMap start HashMap.!? end) `mapMaybe` startingPoints
